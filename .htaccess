@@ -117,15 +117,12 @@ Options -Indexes
 </IfModule>
 
 # ─── 7. PROTEÇÃO CONTRA HOTLINKING DE IMAGENS ───────────────
-# ⚠️  DESATIVADO — Reativar após definir o domínio definitivo.
-# Substitua "seudominio.com.br" pelo domínio real e descomente as linhas.
-#
-# <IfModule mod_rewrite.c>
-#     RewriteEngine On
-#     RewriteCond %{HTTP_REFERER} !^$
-#     RewriteCond %{HTTP_REFERER} !^https://(www\.)?seudominio\.com\.br [NC]
-#     RewriteRule \.(jpg|jpeg|png|gif|mp4|webp)$ - [F,L]
-# </IfModule>
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^https://(www\.)?girassolsolar\.com [NC]
+    RewriteRule \.(jpg|jpeg|png|gif|mp4|webp)$ - [F,L]
+</IfModule>
 
 # ─── 8. PÁGINA DE ERRO PERSONALIZADA ────────────────────────
 ErrorDocument 404 /giraindex.html
