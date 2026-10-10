@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Bloquear arquivos de sistema e logs
+Disallow: /.vscode/
+
+Sitemap: https://girassolenergias.com.br/sitemap.xml

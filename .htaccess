@@ -1,0 +1,145 @@
+# ============================================================
+#  Girassol Energia Solar — Hostinger / LiteSpeed Security
+#  Gerado em: 2026-04-15
+# ============================================================
+
+# ─── 1. FORÇAR HTTPS (redirecionar HTTP → HTTPS) ────────────
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Não redirecionar se já está em HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Remover www duplicado (opcional — descomente se quiser)
+    # RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+    # RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# ─── 2. SECURITY HEADERS ────────────────────────────────────
+<IfModule mod_headers.c>
+
+    # Impedir que o site seja embutido em iframe externo (Clickjacking)
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Impedir MIME sniffing (execução de scripts disfarçados)
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Controle de Referrer — não vazar URL completa para externos
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Forçar HTTPS por 1 ano (HSTS) + incluir subdomínios
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+    # Bloquear acesso a câmera, microfone e geolocalização
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+    # Content Security Policy — define o que o browser pode carregar
+    Header always set Content-Security-Policy "\
+default-src 'self'; \
+script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://code.iconify.design; \
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
+font-src 'self' https://fonts.gstatic.com; \
+img-src 'self' data: https://images.unsplash.com blob:; \
+media-src 'self'; \
+connect-src 'self'; \
+frame-src 'none'; \
+frame-ancestors 'self'; \
+base-uri 'self'; \
+form-action 'self' https://wa.me; \
+"
+
+    # Remover informações do servidor (não revelar tecnologia)
+    Header unset Server
+    Header always unset X-Powered-By
+    Header always unset X-AspNet-Version
+
+    # Proteção adicional XSS para browsers legados
+    Header always set X-XSS-Protection "1; mode=block"
+
+</IfModule>
+
+# ─── 3. BLOQUEAR LISTAGEM DE DIRETÓRIOS ─────────────────────
+Options -Indexes
+
+# ─── 4. PROTEGER ARQUIVOS SENSÍVEIS ─────────────────────────
+# Bloquear acesso direto ao .htaccess
+<Files ".htaccess">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Bloquear arquivos de configuração, backup e sistema
+<FilesMatch "\.(env|log|bak|sql|sh|git|config|lock|yaml|yml|ini|md|xml)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Deixar sitemap.xml acessível (regra específica sobrescreve a acima)
+<Files "sitemap.xml">
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Bloquear acesso à pasta .vscode
+<IfModule mod_rewrite.c>
+    RewriteRule ^\.vscode - [F,L]
+</IfModule>
+
+# ─── 5. COMPRESSÃO GZIP (Performance + menor surface de ataque) ──
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/xml
+</IfModule>
+
+# ─── 6. CACHE DE ATIVOS ESTÁTICOS ───────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Imagens — 1 ano
+    ExpiresByType image/png             "access plus 1 year"
+    ExpiresByType image/jpeg            "access plus 1 year"
+    ExpiresByType image/jpg             "access plus 1 year"
+    ExpiresByType image/webp            "access plus 1 year"
+    ExpiresByType image/gif             "access plus 1 year"
+    ExpiresByType image/svg+xml        "access plus 1 year"
+    ExpiresByType image/x-icon         "access plus 1 year"
+
+    # Vídeos — 6 meses
+    ExpiresByType video/mp4             "access plus 6 months"
+    ExpiresByType video/webm            "access plus 6 months"
+
+    # CSS e JS — 1 mês
+    ExpiresByType text/css              "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+
+    # Fontes — 1 ano
+    ExpiresByType font/woff2            "access plus 1 year"
+    ExpiresByType font/woff             "access plus 1 year"
+
+    # HTML — sem cache (sempre atualizado)
+    ExpiresByType text/html             "access plus 0 seconds"
+</IfModule>
+
+# ─── 7. PROTEÇÃO CONTRA HOTLINKING DE IMAGENS ───────────────
+# ⚠️  DESATIVADO — Reativar após definir o domínio definitivo.
+# Substitua "seudominio.com.br" pelo domínio real e descomente as linhas.
+#
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTP_REFERER} !^$
+#     RewriteCond %{HTTP_REFERER} !^https://(www\.)?seudominio\.com\.br [NC]
+#     RewriteRule \.(jpg|jpeg|png|gif|mp4|webp)$ - [F,L]
+# </IfModule>
+
+# ─── 8. PÁGINA DE ERRO PERSONALIZADA ────────────────────────
+ErrorDocument 404 /index.html
+ErrorDocument 403 /index.html
+
+# ─── 9. CHARSET PADRÃO ──────────────────────────────────────
+AddDefaultCharset UTF-8
