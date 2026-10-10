@@ -2,6 +2,7 @@
 #  Girassol Energia Solar — Hostinger / LiteSpeed Security
 #  Gerado em: 2026-04-15
 # ============================================================
+DirectoryIndex giraindex.html index.html
 
 # ─── 1. FORÇAR HTTPS (redirecionar HTTP → HTTPS) ────────────
 <IfModule mod_rewrite.c>
@@ -35,19 +36,8 @@
     Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
 
     # Content Security Policy — define o que o browser pode carregar
-    Header always set Content-Security-Policy "\
-default-src 'self'; \
-script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://code.iconify.design; \
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
-font-src 'self' https://fonts.gstatic.com; \
-img-src 'self' data: https://images.unsplash.com blob:; \
-media-src 'self'; \
-connect-src 'self'; \
-frame-src 'none'; \
-frame-ancestors 'self'; \
-base-uri 'self'; \
-form-action 'self' https://wa.me; \
-"
+    # Content Security Policy — define o que o browser pode carregar
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://code.iconify.design; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; media-src 'self'; connect-src 'self'; frame-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://wa.me;"
 
     # Remover informações do servidor (não revelar tecnologia)
     Header unset Server
@@ -138,8 +128,8 @@ Options -Indexes
 # </IfModule>
 
 # ─── 8. PÁGINA DE ERRO PERSONALIZADA ────────────────────────
-ErrorDocument 404 /index.html
-ErrorDocument 403 /index.html
+ErrorDocument 404 /giraindex.html
+ErrorDocument 403 /giraindex.html
 
 # ─── 9. CHARSET PADRÃO ──────────────────────────────────────
 AddDefaultCharset UTF-8
