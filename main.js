@@ -1,3 +1,6 @@
+if (typeof document === "undefined") {
+  require("./server.js");
+} else {
 document.addEventListener("DOMContentLoaded", () => {
   const navbar = document.getElementById("navbar");
   const btnFale = document.getElementById("btn-fale-conosco");
@@ -356,4 +359,5 @@ window.switchTab = function(tabId) {
         activeBtn.classList.add('text-brand-dark', 'after:bg-brand-dark');
     }
 };
+}
 
