@@ -1,0 +1,23 @@
+# Atualizações automáticas de segurança das dependências (abre Pull Requests)
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      site:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /robo
+    schedule:
+      interval: weekly
+    groups:
+      robo:
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

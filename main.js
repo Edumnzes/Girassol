@@ -275,6 +275,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize sliders
   setTimeout(initFeaturedDrag, 300);
+
+  // Avaliações do Google: o servidor responde 204 enquanto a chave da API não
+  // estiver configurada, e aí ficam as avaliações fixas do HTML.
+  const reviewsGrid = document.querySelector("[data-reviews]");
+  if (reviewsGrid) {
+    fetch("/api/avaliacoes")
+      .then((res) => (res.status === 200 ? res.json() : null))
+      .then((data) => {
+        if (!data) return;
+        const rating = Number(data.rating);
+        if (rating) {
+          const shown = rating.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+          document.querySelectorAll("[data-review-rating]").forEach((el) => (el.textContent = shown));
+          document.querySelectorAll("[data-review-rating-counter]").forEach((el) => el.setAttribute("data-target", rating));
+        }
+        if (data.total) {
+          document.querySelectorAll("[data-review-total]").forEach((el) => (el.textContent = Number(data.total).toLocaleString("pt-BR")));
+        }
+        const cards = reviewsGrid.querySelectorAll("[data-review-card]");
+        (data.reviews || []).slice(0, cards.length).forEach((review, i) => {
+          const card = cards[i];
+          const name = String(review.author || "Cliente");
+          card.querySelector("[data-review-name]").textContent = name;
+          card.querySelector("[data-review-initial]").textContent = name.charAt(0).toUpperCase();
+          card.querySelector("[data-review-text]").textContent = `"${review.text}"`;
+        });
+      })
+      .catch(() => {});
+  }
 });
 
 // Global functions for Modal and Tabs

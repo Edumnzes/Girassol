@@ -1,6 +1,18 @@
+# Dependências
 node_modules/
 venv/
-.env
-.DS_Store
 __pycache__/
 *.pyc
+
+# Segredos e configurações locais (NUNCA versionar chaves)
+.env
+.env.*
+!.env.exemplo
+*.pem
+*.key
+
+# Ferramentas locais e logs
+.claude/
+.vscode/
+.DS_Store
+*.log

@@ -1,0 +1,74 @@
+# Robô de notícias: pesquisa notícias de energia solar, escreve um artigo
+# e publica no blog. Guia completo: docs/robo-de-noticias.md
+name: Robô de notícias do blog
+
+on:
+  schedule:
+    # Segundas e quintas às 8h (horário da Bahia = 11h UTC)
+    - cron: "0 11 * * 1,4"
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "Como publicar o artigo"
+        type: choice
+        options: [direto, rascunho]
+        default: direto
+
+permissions:
+  contents: write # para salvar o artigo novo no repositório
+
+concurrency:
+  group: robo-noticias
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: robo/package-lock.json
+
+      - name: Instalar dependências do robô
+        working-directory: robo
+        run: npm ci --ignore-scripts
+
+      - name: Pesquisar e escrever o artigo
+        id: robo
+        working-directory: robo
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          MODO_PUBLICACAO: ${{ inputs.modo || vars.MODO_PUBLICACAO || 'direto' }}
+          CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}
+        run: node robo-noticias.mjs
+
+      - name: Publicar (commit no repositório)
+        if: steps.robo.outputs.publicado == 'sim'
+        env:
+          TITULO: ${{ steps.robo.outputs.titulo }}
+        run: |
+          git config user.name "Robô de notícias Girassol"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add blog/posts
+          git commit -m "Blog: novo artigo automático - ${TITULO}"
+          git push
+
+      - name: Resumo
+        if: always()
+        env:
+          PUBLICADO: ${{ steps.robo.outputs.publicado }}
+          TITULO: ${{ steps.robo.outputs.titulo }}
+          SLUG: ${{ steps.robo.outputs.slug }}
+        run: |
+          if [ "$PUBLICADO" = "sim" ]; then
+            echo "### Artigo publicado: ${TITULO}" >> "$GITHUB_STEP_SUMMARY"
+            echo "https://girassolsolar.com/blog/${SLUG}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### Nenhum artigo publicado nesta execução" >> "$GITHUB_STEP_SUMMARY"
+          fi

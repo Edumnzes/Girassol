@@ -1,0 +1,81 @@
+# Verifica a cada alteração se o site sobe, se as páginas respondem certo,
+# se os posts do blog são válidos e se arquivos internos continuam protegidos.
+name: Verificação do site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci --ignore-scripts
+
+      - name: Auditoria de segurança (dependências do site)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Posts do blog válidos
+        run: |
+          node -e "
+            const erros = [];
+            const original = console.error;
+            console.error = (msg) => { erros.push(msg); original(msg); };
+            const posts = require('./lib/blog').getPosts();
+            if (erros.length) process.exit(1);
+            console.log(posts.length + ' posts publicados, nenhum com erro');
+          "
+
+      - name: Subir o servidor e testar as rotas
+        env:
+          PAINEL_CAMINHO: /ci-painel-de-teste-7x2
+        run: |
+          node server.js > servidor.log 2>&1 &
+          sleep 2
+          checar() {
+            codigo=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000$1")
+            if [ "$codigo" != "$2" ]; then echo "FALHOU $1 -> $codigo (esperado $2)"; exit 1; fi
+            echo "ok $1 -> $codigo"
+          }
+          checar / 200
+          checar /contatos.html 200
+          checar /blog 200
+          checar /blog/feed.xml 200
+          checar /sitemap.xml 200
+          checar /robots.txt 200
+          checar /blog.js 200
+          checar "/blog?categoria=economia" 200
+          checar "/blog?categoria=nao-existe" 404
+          checar /admin 404
+          checar /admin/ 404
+          checar /painel/index.html 404
+          checar /painel/config.yml 404
+          checar /api/auth 404
+          checar /ci-painel-de-teste-7x2/ 200
+          checar /ci-painel-de-teste-7x2/config.yml 404
+          checar /ci-painel-de-teste-7x2/auth 404
+          checar /lib/painel.js 404
+          checar /scripts/criar-usuario-painel.js 404
+          checar /api/avaliacoes 204
+          checar /pagina-que-nao-existe 404
+          checar /server.js 404
+          checar /package.json 404
+          checar /.git/config 404
+          checar /lib/blog.js 404
+          checar /robo/robo-noticias.mjs 404
+          checar /blog/posts/como-limpar-paineis-solares.md 404
+          for slug in $(node -e "require('./lib/blog').getPosts().forEach(p => console.log(p.slug))"); do checar "/blog/$slug" 200; done
+          if grep -qi "erro\|error\|Ignorando" servidor.log; then cat servidor.log; exit 1; fi

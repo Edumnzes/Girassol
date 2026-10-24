@@ -1,0 +1,18 @@
+{
+  "name": "girassol-robo-noticias",
+  "private": true,
+  "description": "Robô que pesquisa notícias de energia solar e publica um artigo no blog (roda no GitHub Actions).",
+  "type": "module",
+  "scripts": {
+    "start": "node robo-noticias.mjs",
+    "simular": "node robo-noticias.mjs --simular"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "1.3.0",
+    "yaml": "2.9.1",
+    "zod": "4.6.7"
+  }
+}

@@ -194,3 +194,67 @@ body {
 .animate-3d {
   animation: rotate-3d 8s ease-in-out infinite;
 }
+
+/* Texto dos artigos do blog (gerado a partir do Markdown) */
+.prose-girassol {
+  color: #374151;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  overflow-wrap: break-word;
+}
+.prose-girassol > * + * { margin-top: 1.25em; }
+.prose-girassol h2 {
+  margin-top: 2.2em;
+  font-family: "Sora", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: #0a1526;
+}
+.prose-girassol h3 {
+  margin-top: 1.8em;
+  font-family: "Sora", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #0a1526;
+}
+.prose-girassol a { color: #022c65; text-decoration: underline; text-underline-offset: 3px; }
+.prose-girassol a:hover { color: #e09800; }
+.prose-girassol strong { color: #0a1526; font-weight: 600; }
+.prose-girassol ul { list-style: disc; padding-left: 1.4em; }
+.prose-girassol ol { list-style: decimal; padding-left: 1.4em; }
+.prose-girassol li + li { margin-top: 0.4em; }
+.prose-girassol li::marker { color: #fdaa02; }
+.prose-girassol blockquote {
+  border-left: 4px solid #fdaa02;
+  background: #fff;
+  border-radius: 0 0.75rem 0.75rem 0;
+  padding: 1em 1.25em;
+  font-style: italic;
+}
+.prose-girassol img { border-radius: 1rem; width: 100%; height: auto; }
+.prose-girassol figcaption { margin-top: 0.5em; font-size: 0.85rem; color: #6b7280; text-align: center; }
+.prose-girassol table { width: 100%; border-collapse: collapse; font-size: 0.95rem; display: block; overflow-x: auto; }
+.prose-girassol th, .prose-girassol td { border: 1px solid #e5e7eb; padding: 0.6em 0.8em; text-align: left; }
+.prose-girassol th { background: #f5f7fa; font-weight: 600; color: #0a1526; }
+.prose-girassol hr { border-color: #e5e7eb; margin: 2.5em 0; }
+@media (min-width: 768px) {
+  .prose-girassol { font-size: 1.125rem; }
+  .prose-girassol h2 { font-size: 1.75rem; }
+}
+
+/* Página de artigo: âncoras abaixo do menu fixo, sumário e botão copiar */
+.prose-girassol h2,
+.prose-girassol h3 { scroll-margin-top: 6.5rem; }
+.sumario-link[aria-current="true"] {
+  border-left-color: #fdaa02;
+  background: #f5f7fa;
+  color: #0a1526;
+  font-weight: 600;
+}
+[data-copiar-link].copiado { border-color: #16a34a; color: #16a34a; }
+#progresso-leitura { transition: transform 0.1s linear; }
+@media (prefers-reduced-motion: reduce) {
+  #progresso-leitura { transition: none; }
+}

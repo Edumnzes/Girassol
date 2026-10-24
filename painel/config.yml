@@ -1,0 +1,79 @@
+# Configuração do painel do blog (Decap CMS) — https://decapcms.org/docs/configuration-options/
+# Cada artigo salvo aqui vira um arquivo em blog/posts/ no GitHub, e a
+# Hostinger publica o site automaticamente após cada alteração.
+
+backend:
+  name: github
+  repo: Edumnzes/Girassol
+  branch: main
+  base_url: https://girassolsolar.com   # login feito pelo próprio site (lib/github-oauth.js)
+  # __PAINEL__ é trocado pelo servidor pelo endereço secreto (PAINEL_CAMINHO),
+  # que nunca fica escrito no repositório público
+  auth_endpoint: __PAINEL__/auth
+  auth_scope: public_repo
+  commit_messages:
+    create: "Blog: novo artigo \"{{slug}}\""
+    update: "Blog: atualiza artigo \"{{slug}}\""
+    delete: "Blog: remove artigo \"{{slug}}\""
+    uploadMedia: "Blog: envia imagem \"{{path}}\""
+    deleteMedia: "Blog: remove imagem \"{{path}}\""
+
+# Para testar o painel no computador: rode "npx decap-server" e entre pelo
+# endereço do painel em http://localhost:3000 (veja docs/painel-do-blog.md)
+local_backend: true
+
+locale: pt
+site_url: https://girassolsolar.com
+display_url: https://girassolsolar.com
+logo_url: /ARQUIVOS/LOGOS/cor-total.webp
+
+media_folder: ARQUIVOS/BLOG
+public_folder: /ARQUIVOS/BLOG
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: "-"
+
+collections:
+  - name: posts
+    label: Artigos
+    label_singular: Artigo
+    description: Artigos do blog. Escreva, revise e clique em "Publicar".
+    folder: blog/posts
+    create: true
+    delete: true
+    extension: md
+    format: frontmatter
+    slug: "{{slug}}"
+    preview_path: "blog/{{slug}}"
+    summary: "{{title}} — {{date | date('DD/MM/YYYY')}}"
+    sortable_fields: [date, title, category]
+    view_filters:
+      - { label: Rascunhos, field: draft, pattern: true }
+    fields:
+      - { name: title, label: Título, widget: string, hint: "Curto e direto, até 65 caracteres. Aparece no Google." }
+      - { name: description, label: Resumo, widget: text, hint: "1 ou 2 frases (até 160 caracteres). Aparece no Google e nos cards do blog." }
+      - { name: date, label: Data de publicação, widget: datetime, hint: "Datas futuras deixam o artigo agendado." }
+      - name: category
+        label: Categoria
+        widget: select
+        options: [Notícias, Economia, Dicas, Manutenção, Tecnologia, Legislação, Agronegócio]
+        default: Notícias
+      - { name: author, label: Autor, widget: string, default: Equipe Girassol }
+      - { name: tags, label: Palavras-chave, widget: list, required: false, hint: "Separe por vírgula. Ex.: energia solar, Irecê, economia" }
+      - { name: cover, label: Imagem de capa, widget: image, required: false, hint: "Formato horizontal, de preferência 1600 × 900 px." }
+      - { name: cover_alt, label: Descrição da imagem, widget: string, required: false, hint: "O que aparece na foto (para acessibilidade e Google)." }
+      - { name: cover_credit, label: Crédito da foto, widget: string, required: false, hint: "Ex.: Foto: Fulano / Unsplash" }
+      - { name: cover_credit_url, label: Link do crédito, widget: string, required: false }
+      - name: sources
+        label: Fontes
+        label_singular: Fonte
+        widget: list
+        required: false
+        hint: "Sites de onde vieram as informações (recomendado para notícias)."
+        fields:
+          - { name: title, label: Nome da fonte, widget: string }
+          - { name: url, label: Link, widget: string }
+      - { name: draft, label: Rascunho (não publicar ainda), widget: boolean, default: false, required: false }
+      - { name: body, label: Texto do artigo, widget: markdown }

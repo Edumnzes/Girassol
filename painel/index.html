@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Painel do Blog | Girassol Energia Solar</title>
+  <link rel="icon" type="image/webp" href="/ARQUIVOS/LOGOS/icone_girassol-removebg-preview.webp" />
+</head>
+<body>
+  <!-- Painel de edição do blog (Decap CMS). Configuração em painel/config.yml.
+       Só é servido com a sessão do painel ativa (lib/painel.js).
+       Guia de uso para quem publica: docs/painel-do-blog.md -->
+  <a href="sair" title="Encerrar a sessão do painel"
+    style="position:fixed;left:16px;bottom:16px;z-index:9999;padding:8px 14px;border-radius:999px;background:#0a1526;color:#fff;font:600 13px/1 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.25)">
+    Sair do painel
+  </a>
+  <script src="https://unpkg.com/decap-cms@3.17.1/dist/decap-cms.js"></script>
+  <script>
+    // Prévia do artigo com o mesmo visual do site
+    CMS.registerPreviewStyle('/styles.min.css');
+    CMS.registerPreviewStyle('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600&family=Sora:wght@500;600&display=swap');
+    var PostPreview = createClass({
+      render: function () {
+        var data = this.props.entry.get('data');
+        var cover = data.get('cover');
+        return h('article', { className: 'font-body bg-brand-gray min-h-screen px-6 py-10' },
+          h('div', { className: 'max-w-3xl mx-auto' },
+            h('span', { className: 'inline-block bg-accent/15 text-brand-dark text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full mb-4' }, data.get('category')),
+            h('h1', { className: 'font-display font-medium text-4xl leading-tight tracking-tighter text-brand-dark' }, data.get('title')),
+            h('p', { className: 'mt-4 text-lg text-gray-600' }, data.get('description')),
+            cover ? h('img', { src: this.props.getAsset(cover).toString(), alt: '', className: 'mt-8 w-full aspect-[16/9] object-cover rounded-2xl' }) : null,
+            h('div', { className: 'prose-girassol mt-8' }, this.props.widgetFor('body'))
+          )
+        );
+      }
+    });
+    CMS.registerPreviewTemplate('posts', PostPreview);
+  </script>
+</body>
+</html>

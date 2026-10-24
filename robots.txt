@@ -1,7 +1,5 @@
 User-agent: *
 Allow: /
-
-# Bloquear arquivos de sistema e logs
-Disallow: /.vscode/
+Disallow: /api/
 
 Sitemap: https://girassolsolar.com/sitemap.xml

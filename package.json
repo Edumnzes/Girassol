@@ -1,11 +1,13 @@
 {
   "name": "girassol",
   "version": "1.0.0",
-  "description": "",
+  "description": "Site e blog da Girassol Energia Solar",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node --env-file-if-exists=.env server.js",
+    "css": "tailwindcss -i input.css -o styles.min.css --minify",
+    "criar-usuario": "node scripts/criar-usuario-painel.js"
   },
   "keywords": [],
   "author": "",
@@ -13,5 +15,12 @@
   "type": "commonjs",
   "devDependencies": {
     "tailwindcss": "^3.4.19"
+  },
+  "dependencies": {
+    "marked": "18.1.1",
+    "yaml": "2.9.1"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
