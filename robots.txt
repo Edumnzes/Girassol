@@ -4,4 +4,4 @@ Allow: /
 # Bloquear arquivos de sistema e logs
 Disallow: /.vscode/
 
-Sitemap: https://girassolenergias.com.br/sitemap.xml
+Sitemap: https://girassolsolar.com/sitemap.xml

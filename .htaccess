@@ -60,7 +60,7 @@ Options -Indexes
 </Files>
 
 # Bloquear arquivos de configuração, backup e sistema
-<FilesMatch "\.(env|log|bak|sql|sh|git|config|lock|yaml|yml|ini|md|xml)$">
+<FilesMatch "\.(env|log|bak|sql|sh|git|config|lock|yaml|yml|ini|md|xml|py|json)$">
     Order allow,deny
     Deny from all
 </FilesMatch>
@@ -71,9 +71,10 @@ Options -Indexes
     Allow from all
 </Files>
 
-# Bloquear acesso à pasta .vscode
+# Bloquear pastas internas (.git, .vscode, .claude) e arquivos do servidor Node
 <IfModule mod_rewrite.c>
-    RewriteRule ^\.vscode - [F,L]
+    RewriteRule ^\.(git|vscode|claude)(/|$) - [F,L]
+    RewriteRule ^server\.js$ - [F,L]
 </IfModule>
 
 # ─── 5. COMPRESSÃO GZIP (Performance + menor surface de ataque) ──
