@@ -15,6 +15,79 @@
     style="position:fixed;left:16px;bottom:16px;z-index:9999;padding:8px 14px;border-radius:999px;background:#0a1526;color:#fff;font:600 13px/1 system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.25)">
     Sair do painel
   </a>
+  <script>
+    // Otimiza as imagens ANTES de o painel enviá-las ao GitHub: reduz para no
+    // máximo 1600 px, converte para WebP e remove dados do celular (GPS, modelo).
+    // Assim fotos pesadas nunca entram no repositório. SVG é recusado (pode conter código).
+    (function () {
+      var LADO_MAXIMO = 1600;
+      var QUALIDADE = 0.82;
+      var reenviados = new WeakSet();
+
+      function nomeSeguro(nome) {
+        var base = nome.replace(/\.[^.]+$/, '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+        base = base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+        return (base || 'imagem') + '-' + Date.now().toString(36) + '.webp';
+      }
+
+      function aviso(texto) {
+        var el = document.getElementById('aviso-imagem');
+        if (!el) {
+          el = document.createElement('div');
+          el.id = 'aviso-imagem';
+          el.setAttribute('role', 'status');
+          el.style.cssText = 'position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:99999;padding:10px 18px;border-radius:999px;background:#0a1526;color:#fff;font:600 14px/1.2 system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.25)';
+          document.body.appendChild(el);
+        }
+        el.textContent = texto;
+        el.hidden = !texto;
+      }
+
+      async function otimizar(arquivo) {
+        if (!/^image\/(jpeg|png|webp|bmp)$/.test(arquivo.type)) return arquivo;
+        var imagem = await createImageBitmap(arquivo, { imageOrientation: 'from-image' });
+        var escala = Math.min(1, LADO_MAXIMO / Math.max(imagem.width, imagem.height));
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.round(imagem.width * escala);
+        canvas.height = Math.round(imagem.height * escala);
+        canvas.getContext('2d').drawImage(imagem, 0, 0, canvas.width, canvas.height);
+        imagem.close();
+        var blob = await new Promise(function (ok) { canvas.toBlob(ok, 'image/webp', QUALIDADE); });
+        if (!blob) return arquivo;
+        return new File([blob], nomeSeguro(arquivo.name), { type: 'image/webp', lastModified: Date.now() });
+      }
+
+      document.addEventListener('change', async function (evento) {
+        var input = evento.target;
+        if (reenviados.has(evento) || !(input instanceof HTMLInputElement) || input.type !== 'file' || !input.files.length) return;
+        var arquivos = Array.prototype.slice.call(input.files);
+
+        if (arquivos.some(function (a) { return /svg/i.test(a.type) || /\.svg$/i.test(a.name); })) {
+          evento.stopImmediatePropagation();
+          input.value = '';
+          alert('Imagens SVG não são aceitas por segurança. Use JPG, PNG ou WebP.');
+          return;
+        }
+        if (!arquivos.some(function (a) { return /^image\//.test(a.type); })) return;
+
+        evento.stopImmediatePropagation();
+        aviso('Otimizando imagem…');
+        try {
+          var otimizados = [];
+          for (var i = 0; i < arquivos.length; i++) otimizados.push(await otimizar(arquivos[i]));
+          var lista = new DataTransfer();
+          otimizados.forEach(function (a) { lista.items.add(a); });
+          input.files = lista.files;
+        } catch (erro) {
+          console.error('[painel] Falha ao otimizar imagem', erro);
+        }
+        aviso('');
+        var novo = new Event('change', { bubbles: true });
+        reenviados.add(novo);
+        input.dispatchEvent(novo);
+      }, true);
+    })();
+  </script>
   <script src="https://unpkg.com/decap-cms@3.17.1/dist/decap-cms.js"></script>
   <script>
     // Prévia do artigo com o mesmo visual do site

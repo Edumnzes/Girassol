@@ -65,7 +65,8 @@ const CSP_ADMIN = [
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob:",
   // localhost:8081 = "npx decap-server", só para testar o painel no computador
-  "connect-src 'self' https://api.github.com https://*.githubusercontent.com https://unpkg.com http://localhost:8081",
+  // blob:/data: = o Decap lê a imagem escolhida antes de enviá-la ao GitHub
+  "connect-src 'self' blob: data: https://api.github.com https://*.githubusercontent.com https://unpkg.com http://localhost:8081",
   "frame-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
@@ -120,8 +121,10 @@ function sendText(req, res, status, body, contentType, extra = {}) {
 function sendFile(req, res, filePath) {
   const ext = path.extname(filePath).toLowerCase();
   const type = MIME_TYPES[ext] || 'application/octet-stream';
+  // SVG pode conter scripts: é servido isolado, sem executar nada
+  const extra = ext === '.svg' ? { 'Content-Security-Policy': "default-src 'none'; img-src data:; style-src 'unsafe-inline'; sandbox" } : {};
   if (COMPRESSIBLE.test(type)) {
-    return sendText(req, res, 200, fs.readFileSync(filePath), type, { 'Cache-Control': cacheControl(ext) });
+    return sendText(req, res, 200, fs.readFileSync(filePath), type, { 'Cache-Control': cacheControl(ext), ...extra });
   }
 
   const size = fs.statSync(filePath).size;

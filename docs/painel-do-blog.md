@@ -36,7 +36,7 @@ A sessão dura **8 horas**. Para sair antes, use o botão **"Sair do painel"** n
 | **Data de publicação** | Uma data futura deixa o artigo **agendado**: ele aparece sozinho no dia. |
 | **Categoria** | Vira um filtro na página do blog. |
 | **Palavras-chave** | Termos que as pessoas pesquisariam. Ex.: energia solar, Irecê, conta de luz. |
-| **Imagem de capa** | Foto horizontal (ideal 1600 × 900 px). Use fotos próprias ou de bancos gratuitos como [Unsplash](https://unsplash.com) e preencha o crédito. |
+| **Imagem de capa** | Foto horizontal. Pode enviar direto do celular: o painel reduz e otimiza sozinho (veja [Imagens](#imagens)). Use fotos próprias ou de bancos gratuitos como [Unsplash](https://unsplash.com) e preencha o crédito. |
 | **Descrição da imagem** | O que aparece na foto. Ajuda no Google e na acessibilidade. |
 | **Fontes** | Para notícias, coloque os sites de onde vieram as informações. |
 | **Texto do artigo** | Use os botões do editor para subtítulos, negrito, listas e links. |
@@ -44,6 +44,17 @@ A sessão dura **8 horas**. Para sair antes, use o botão **"Sair do painel"** n
 3. A **prévia** ao lado mostra como o artigo vai ficar no site.
 
 **Dica:** cada subtítulo (botão "Heading 2" do editor) entra automaticamente no **"Neste artigo"**, o sumário clicável da página. Use de 3 a 5 subtítulos.
+
+### Imagens
+Pode enviar a foto do jeito que ela saiu do celular. Antes de salvar, o painel faz sozinho:
+- **reduz** para no máximo 1600 px (ainda nítida em qualquer tela);
+- **converte para WebP**, um formato bem mais leve (uma foto de 5 MB costuma virar 200–700 KB);
+- **remove os dados escondidos da foto**, como localização (GPS) e modelo do celular;
+- **renomeia** o arquivo sem acentos nem espaços.
+
+Aparece o aviso "Otimizando imagem…" por alguns segundos. Formatos aceitos: **JPG, PNG e WebP**. **SVG é recusado** por segurança, e arquivos acima de 2 MB que não puderem ser otimizados também.
+
+> Fotos do iPhone em formato HEIC: na maioria dos casos o iPhone já envia como JPG. Se aparecer erro de tamanho, salve a foto como JPG antes de enviar.
 
 ### 4. Publicar
 - Clique em **Publicar** → **Publicar agora**. Em cerca de 1 minuto o artigo está no ar.
@@ -132,6 +143,19 @@ Gere um novo usuário com o mesmo nome (`npm run criar-usuario`) e substitua a l
 3. No OAuth App, clique em **Revoke all user tokens**.
 4. Reimplante. Todas as sessões ativas caem na hora.
 5. Veja os registros (*logs*) do app na Hostinger: cada login aceito ou recusado aparece como `[painel] Login...`.
+
+### Otimização de imagens (como funciona)
+1. **No painel** (`painel/index.html`): a foto é reduzida e convertida no navegador antes de ir para o GitHub, então o original pesado nunca entra no repositório.
+2. **Limite de 2 MB** no campo de capa (`max_file_size` em `painel/config.yml`). Não coloque um bloco `media_library` global no config: ele quebra o Decap.
+3. **Rede de segurança no GitHub** (`.github/workflows/otimizar-imagens.yml`): se uma imagem grande chegar em `ARQUIVOS/BLOG/` por outro caminho, o workflow converte para WebP, remove os metadados e corrige os links nos posts sozinho.
+
+Para rodar a otimização no computador:
+```bash
+npm install --no-save sharp
+```
+```bash
+node scripts/otimizar-imagens.mjs
+```
 
 ### Dar acesso de publicação no GitHub
 Repositório → **Settings → Collaborators → Add people** → permissão **Write**. A pessoa aceita o convite que chega por e-mail.

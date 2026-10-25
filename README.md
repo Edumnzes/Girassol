@@ -68,7 +68,7 @@ Você (git push) ─────────────────────
 ├── painel/                Painel do blog (Decap CMS), servido só com login
 ├── ARQUIVOS/              Imagens, logos, vídeos e fotos enviadas pelo painel (BLOG/)
 ├── robo/                  Robô de notícias (roda só no GitHub Actions)
-├── scripts/               Utilitários: criar usuário do painel, converter imagens
+├── scripts/               Utilitários: criar usuário do painel, otimizar imagens do blog
 ├── docs/                  Guias detalhados
 └── .github/               Workflows (verificação, robô) e Dependabot
 ```

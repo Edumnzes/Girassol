@@ -30,6 +30,10 @@ logo_url: /ARQUIVOS/LOGOS/cor-total.webp
 media_folder: ARQUIVOS/BLOG
 public_folder: /ARQUIVOS/BLOG
 
+# O painel já reduz e converte as fotos para WebP antes de enviar (painel/index.html).
+# O campo "Imagem de capa" também tem limite de 2 MB (max_file_size), para barrar
+# arquivos que escaparem da otimização. Um bloco media_library global aqui quebra o Decap.
+
 slug:
   encoding: ascii
   clean_accents: true
@@ -62,7 +66,7 @@ collections:
         default: Notícias
       - { name: author, label: Autor, widget: string, default: Equipe Girassol }
       - { name: tags, label: Palavras-chave, widget: list, required: false, hint: "Separe por vírgula. Ex.: energia solar, Irecê, economia" }
-      - { name: cover, label: Imagem de capa, widget: image, required: false, hint: "Formato horizontal, de preferência 1600 × 900 px." }
+      - { name: cover, label: Imagem de capa, widget: image, required: false, hint: "Foto horizontal. O painel reduz e otimiza a imagem automaticamente.", media_library: { config: { max_file_size: 2097152 } } }
       - { name: cover_alt, label: Descrição da imagem, widget: string, required: false, hint: "O que aparece na foto (para acessibilidade e Google)." }
       - { name: cover_credit, label: Crédito da foto, widget: string, required: false, hint: "Ex.: Foto: Fulano / Unsplash" }
       - { name: cover_credit_url, label: Link do crédito, widget: string, required: false }

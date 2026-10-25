@@ -21,6 +21,8 @@ Encontrou uma falha de segurança no site? **Não abra uma issue pública.** Use
 - Links e imagens só aceitam `https://`, `http://`, `mailto:`, `tel:` e caminhos internos (`javascript:` é descartado).
 - Links externos abrem com `rel="noopener noreferrer nofollow"`.
 - Dados estruturados (JSON-LD) são escapados para não fechar a tag `<script>`.
+- **Imagens enviadas pelo painel** são reconvertidas para WebP no navegador, o que **remove metadados como GPS e modelo do celular** (privacidade de quem fotografou). O GitHub Actions repete a limpeza em qualquer imagem que chegue por outro caminho.
+- **SVG é recusado no painel** (pode conter scripts). Se algum SVG for servido, vai com CSP `sandbox`, sem executar nada.
 
 ### Painel do blog (`lib/painel.js`)
 Quatro camadas, nesta ordem:

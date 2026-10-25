@@ -1,0 +1,45 @@
+# Rede de segurança: se alguma imagem grande chegar em ARQUIVOS/BLOG
+# (ex.: enviada direto pelo GitHub), reduz para WebP de até 1600 px e
+# corrige os links nos posts. O painel já otimiza antes de enviar.
+name: Otimizar imagens do blog
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ARQUIVOS/BLOG/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: otimizar-imagens
+  cancel-in-progress: false
+
+jobs:
+  otimizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+
+      - name: Instalar a biblioteca de imagens
+        run: npm install --no-save --no-package-lock sharp@0.35.5
+
+      - name: Otimizar
+        id: otimizar
+        run: node scripts/otimizar-imagens.mjs
+
+      - name: Salvar no repositório
+        if: steps.otimizar.outputs.alterou == 'sim'
+        run: |
+          git config user.name "Otimizador de imagens Girassol"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ARQUIVOS/BLOG blog/posts
+          git commit -m "Blog: otimiza imagens enviadas"
+          git push
