@@ -29,6 +29,7 @@ Site da **Girassol Energia Solar** (Irecê, Bahia): página de vendas, central d
 | Painel do blog | Endereço secreto | Editor visual com login em duas etapas (senha + código 2FA + GitHub) ([guia](docs/painel-do-blog.md)) |
 | Robô de notícias | GitHub Actions | Pesquisa notícias e publica 2 artigos por semana ([guia](docs/robo-de-noticias.md)) |
 | Avaliações do Google | `/api/avaliacoes` | Nota e comentários atualizados sozinhos ([guia](docs/avaliacoes-google.md)) |
+| Vigia do domínio | GitHub Actions | A cada 6 h confere domínio, DNS, site e SSL e manda e-mail se algo cair ([guia](docs/hospedagem-e-dominio.md#vigia-automático-já-ativo)) |
 
 ## Como funciona
 

@@ -2,7 +2,7 @@
 
 A Cloudflare fica **na frente** da Hostinger: os visitantes acessam a Cloudflare, que entrega o site mais rápido (cache e CDN no Brasil) e bloqueia ataques (firewall, proteção DDoS e contra robôs). O plano **gratuito** atende este site.
 
-> **Antes de começar:** o domínio precisa estar liberado na Wix (hoje está suspenso; veja [hospedagem-e-dominio.md](hospedagem-e-dominio.md)).
+> **Antes de começar:** os servidores DNS do domínio ficam na Wix (veja [hospedagem-e-dominio.md](hospedagem-e-dominio.md)). Ao trocar para os da Cloudflare, atualize a variável `NS_ESPERADOS` do vigia do domínio.
 
 ## O site já está preparado
 
