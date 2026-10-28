@@ -195,6 +195,27 @@ body {
   animation: rotate-3d 8s ease-in-out infinite;
 }
 
+/* Celular: sem brilhos desfocados nem enfeites 3D animados. Eles consomem
+   muita memória de vídeo e faziam o Safari do iPhone recarregar a página. */
+@media (max-width: 767px) {
+  .ambient-glow,
+  .floating-3d {
+    display: none !important;
+  }
+  .glass-panel {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-3d,
+  .animate-float,
+  .pulse-ring {
+    animation: none;
+  }
+}
+
 /* Texto dos artigos do blog (gerado a partir do Markdown) */
 .prose-girassol {
   color: #374151;
