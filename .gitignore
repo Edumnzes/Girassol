@@ -16,3 +16,9 @@ __pycache__/
 .vscode/
 .DS_Store
 *.log
+
+# Relatórios mensais gerados (ficam nos Artifacts do GitHub)
+relatorio/
+
+# PDFs gerados para enviar ao cliente
+entrega-cliente/

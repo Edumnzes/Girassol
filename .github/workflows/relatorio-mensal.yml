@@ -1,0 +1,72 @@
+# Relatório mensal de manutenção: no dia 1º, monta o relatório do mês anterior
+# (PDF para o cliente + resumo interno) e abre uma issue avisando o responsável.
+# Texto das melhorias em linguagem de cliente (opcional): docs/relatorios/AAAA-MM.json
+name: Relatório mensal
+
+on:
+  schedule:
+    - cron: "0 12 1 * *" # dia 1º, 9h na Bahia
+  workflow_dispatch:
+    inputs:
+      mes:
+        description: "Mês no formato AAAA-MM (vazio = mês anterior)"
+        required: false
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  relatorio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - name: Gerar relatório
+        id: rel
+        env:
+          MES: ${{ inputs.mes }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/relatorio-mensal.mjs
+
+      - name: Converter para PDF
+        env:
+          NAVEGADOR: chrome # Google Chrome já vem instalado no ubuntu-latest
+          MES: ${{ steps.rel.outputs.mes }}
+        run: |
+          npm install --no-save --no-package-lock playwright-core@1.56.1
+          node scripts/html-para-pdf.mjs "relatorio/relatorio-$MES.html" "relatorio/Girassol - Relatorio de manutencao - $MES.pdf"
+
+      - name: Guardar o relatório para download
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: relatorio-${{ steps.rel.outputs.mes }}
+          path: |
+            relatorio/*.pdf
+            relatorio/relatorio-${{ steps.rel.outputs.mes }}.html
+          retention-days: 90
+
+      - name: Avisar por issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TITULO: ${{ steps.rel.outputs.titulo }}
+          MES: ${{ steps.rel.outputs.mes }}
+        run: |
+          {
+            cat "relatorio/relatorio-$MES.md"
+            echo ""
+            echo "Download do HTML: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          } > corpo.md
+          gh issue create --title "$TITULO" --body-file corpo.md
